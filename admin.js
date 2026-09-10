@@ -25,7 +25,7 @@ async function loadAdmin(){
     renderProps();
   } catch(e) {
     console.error(e);
-    $('loginMsg').textContent = e.message;
+    $('settingsMsg').textContent = `Firebase error: ${e.message}`;
   }
 }
 
