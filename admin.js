@@ -1,10 +1,11 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 import { firebaseConfig, IMGBB_API_KEY } from './firebase-config.js';
-const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app); const $=id=>document.getElementById(id); let cats=[];
-$('loginBtn').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('email').value,$('password').value);$('loginMsg').textContent='';}catch(e){$('loginMsg').textContent=e.message}};$('logoutBtn').onclick=()=>signOut(auth);
-onAuthStateChanged(auth,u=>{if(u){$('loginBox').classList.add('hidden');$('dashboard').classList.remove('hidden');loadAdmin()}else{$('loginBox').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
+const app=initializeApp(firebaseConfig), db=getFirestore(app); const $=id=>document.getElementById(id); let cats=[];
+const ADMIN_PASSWORD='mintupulkit';
+function unlock(){if($('adminPassword').value===ADMIN_PASSWORD){sessionStorage.setItem('nestora_admin','1');$('loginBox').classList.add('hidden');$('dashboard').classList.remove('hidden');loadAdmin()}else $('loginMsg').textContent='Wrong password.'}
+$('loginBtn').onclick=unlock; $('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()}); $('logoutBtn').onclick=()=>{sessionStorage.removeItem('nestora_admin');location.reload()};
+if(sessionStorage.getItem('nestora_admin')==='1'){ $('loginBox').classList.add('hidden'); $('dashboard').classList.remove('hidden'); loadAdmin(); }
 async function loadAdmin(){const s=await getDocs(collection(db,'categories'));cats=s.docs.map(x=>({id:x.id,...x.data()}));renderCats();const set=await (await import('https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js')).getDoc(doc(db,'settings','site'));if(set.exists()){const d=set.data();$('marqueeInput').value=d.marquee||'';$('waInput').value=d.whatsapp||''}fillSelect();renderProps()}
 function renderCats(){$('catList').innerHTML=cats.map(c=>`<span class="chip">${esc(c.name)} <button data-id="${c.id}">×</button></span>`).join('');$('catList').querySelectorAll('button').forEach(b=>b.onclick=async()=>{await deleteDoc(doc(db,'categories',b.dataset.id));loadAdmin()})}
 $('addCat').onclick=async()=>{const n=$('catInput').value.trim();if(!n)return;await addDoc(collection(db,'categories'),{name:n,createdAt:serverTimestamp()});$('catInput').value='';loadAdmin()};
