@@ -2,44 +2,13 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebas
 import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, setDoc, serverTimestamp, getDoc } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 import { firebaseConfig, IMGBB_API_KEY } from './firebase-config.js';
 
-const ADMIN_PASSWORD = 'mintupulkit';
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const $ = id => document.getElementById(id);
 let cats = [];
 
-function showDashboard(){
-  $('loginBox').classList.add('hidden');
-  $('dashboard').classList.remove('hidden');
-  loadAdmin();
-}
-function showLogin(){
-  $('loginBox').classList.remove('hidden');
-  $('dashboard').classList.add('hidden');
-}
-
-$('loginBtn').onclick = () => {
-  const password = $('password')?.value || '';
-  if (password === ADMIN_PASSWORD) {
-    sessionStorage.setItem('nestora_admin', '1');
-    $('loginMsg').textContent = '';
-    showDashboard();
-  } else {
-    $('loginMsg').textContent = 'Wrong password.';
-  }
-};
-
-$('password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') $('loginBtn').click();
-});
-
-$('logoutBtn').onclick = () => {
-  sessionStorage.removeItem('nestora_admin');
-  showLogin();
-};
-
-if (sessionStorage.getItem('nestora_admin') === '1') showDashboard();
-else showLogin();
+$('logoutBtn').onclick = () => { window.location.href = 'index.html'; };
+loadAdmin();
 
 async function loadAdmin(){
   try {
